@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pick'ems Bracket</title>
+
+<style>
+:root{
+  --line:#111;
+  --boxFill:#f7f7f7;
+  --boxStroke:#bdbdbd;
+  --winFill:#e9f6e9;
+  --winStroke:#5aa85a;
+
+  --cellH:34px;
+  --scoreW:44px;
+  --seedW:44px;
+  --nameW:180px;
+
+  --gameW:calc(var(--seedW) + var(--nameW) + var(--scoreW));
+  --round2W:300px;
+  --round3W:330px;
+  --finalW:330px;
+
+  --gapX:58px;
+  --leftOffset:36px;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  font-family:"Times New Roman", Times, serif;
+}
+
+body {
+  background: #1a1a1a;
+  padding: 20px;
+}
+
+.stage{
+  width:1539px;
+  height:768px;
+  margin:auto;
+  position:relative;
+  background:url("bg.png") no-repeat center;
+  background-size:cover;
+  padding-top:22px;
+}
+
+.controls {
+  max-width: 1539px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.controls button {
+  background: #fff;
+  color: #333;
+  border: 2px solid #bdbdbd;
+  padding: 14px 28px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 0;
+  font-family: "Times New Roman", Times, serif;
+  margin: 0 10px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.controls button:hover {
+  background: #f7f7f7;
+  border-color: #5aa85a;
+  color: #5aa85a;
+}
+
+.controls button:active {
+  background: #e9f6e9;
+  border-color: #5aa85a;
+  transform: translateY(1px);
+}
+
+.controls button.export-btn {
+  background: #5aa85a;
+  color: white;
+  border-color: #5aa85a;
+}
+
+.controls button.export-btn:hover {
+  background: #4a9249;
+  border-color: #4a9249;
+  color: white;
+}
+
+.controls button.export-btn:active {
+  background: #3d7a3c;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.controls button:disabled:hover {
+  background: #fff;
+  border-color: #bdbdbd;
+  color: #333;
+  transform: none;
+}
+
+.controls button.export-btn:disabled:hover {
+  background: #5aa85a;
+  border-color: #5aa85a;
+  color: white;
+}
+
+.headers{
+  display:grid;
+  grid-template-columns: var(--gameW) var(--round2W) var(--round3W) var(--finalW);
+  gap:var(--gapX);
+  margin-left:var(--leftOffset);
+}
+
+.hdr{
+  background:#fff;
+  border:1px solid #d7d7d7;
+  height:56px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:22px;
+}
+
+.grid{
+  position:relative;
+  display:grid;
+  grid-template-columns: var(--gameW) var(--round2W) var(--round3W) var(--finalW);
+  gap:var(--gapX);
+  margin-left:var(--leftOffset);
+  margin-top:26px;
+  height:calc(100% - 110px);
+}
+
+.stack{
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+
+.game{
+  width:var(--gameW);
+  background:var(--boxFill);
+  border:1px solid var(--boxStroke);
+}
+
+.row{
+  display:grid;
+  grid-template-columns: var(--seedW) var(--nameW) var(--scoreW);
+  height:var(--cellH);
+  align-items:center;
+  border-top:1px solid #d9d9d9;
+  cursor:pointer;
+}
+
+.row:first-child{border-top:none;}
+
+.seed{padding-left:10px;font-size:20px;}
+.name{
+  padding-left:10px;
+  font-size:28px;
+  text-decoration:underline;
+  text-decoration-thickness:2px;
+  text-underline-offset:2px;
+  white-space:nowrap;
+}
+.score{
+  border-left:1px solid #d9d9d9;
+  text-align:center;
+}
+.score input{
+  width:32px;
+  border:none;
+  background:transparent;
+  font-size:18px;
+  text-align:center;
+  font-family:"Times New Roman", Times, serif;
+}
+
+.row.win,.slotRow.win{
+  background:var(--winFill);
+  outline:2px solid var(--winStroke);
+  outline-offset:-2px;
+}
+
+.slotWrap{position:absolute;}
+.slotGame{
+  background:var(--boxFill);
+  border:1px solid var(--boxStroke);
+}
+.slotRow{
+  display:grid;
+  grid-template-columns:44px 1fr 44px;
+  height:var(--cellH);
+  align-items:center;
+  border-top:1px solid #d9d9d9;
+  cursor:pointer;
+}
+.slotRow:first-child{border-top:none;}
+.slotSeed{padding-left:10px;font-size:20px;}
+.slotName{
+  padding-left:10px;
+  font-size:28px;
+  text-decoration:underline;
+  text-decoration-thickness:2px;
+  text-underline-offset:2px;
+  white-space:nowrap;
+}
+.slotScore{text-align:center;border-left:1px solid #d9d9d9;}
+.slotScore input{
+  width:32px;
+  border:none;
+  background:transparent;
+  font-size:18px;
+  text-align:center;
+  font-family:"Times New Roman", Times, serif;
+}
+
+svg{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+<div class="controls">
+  <button class="export-btn" onclick="exportPNG()">📸 Export as PNG</button>
+  <button id="resetBtn" onclick="resetBracket()">🔄 Reset Bracket</button>
+</div>
+
+<div class="stage" id="bracket">
+  <div class="headers">
+    <div class="hdr">First round</div>
+    <div class="hdr">Second round</div>
+    <div class="hdr">Semifinals</div>
+    <div class="hdr">League Finals</div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="stack" id="r1"></div>
+    <div id="r2"></div>
+    <div id="r3"></div>
+    <div id="r4"></div>
+    <svg id="lines"></svg>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+const games = [
+  ["Miami","San Antonio"],
+  ["Portland","Cleveland"],
+  ["Jacksonville","Charlotte"],
+  ["Atlanta","Nashville"],
+  ["Brooklyn","Houston"],
+  ["Salt Lake","San Jose"],
+  ["San Diego","Orlando"],
+  ["Louisville","Dallas"]
+];
+
+const seeds = [
+  [1, 8],
+  [4, 5],
+  [3, 6],
+  [2, 7],
+  [3, 6],
+  [2, 7],
+  [4, 5],
+  [1, 8]
+];
+
+const state={
+  r1:Array(8).fill(null),
+  r2:Array(4).fill(null),
+  r3:Array(2).fill(null),
+  r4:null
+};
+
+function el(t,c){const e=document.createElement(t);if(c)e.className=c;return e;}
+
+function build(){
+  const r1=document.getElementById("r1");
+  games.forEach((g,i)=>{
+    const game=el("div","game");
+    g.forEach((team,s)=>{
+      const row=el("div","row");
+      row.dataset.i=i; row.dataset.s=s;
+      row.innerHTML=`<div class="seed">#${seeds[i][s]}</div><div class="name">${team}</div><div class="score"><input value="0"></div>`;
+      row.onclick=()=>pick(1,i,s);
+      game.appendChild(row);
+    });
+    r1.appendChild(game);
+  });
+
+  buildRound(2,4,"r2",300);
+  buildRound(3,2,"r3",330);
+  buildRound(4,1,"r4",330);
+
+  render();
+}
+
+function buildRound(r,count,id,w){
+  const col=document.getElementById(id);
+  for(let i=0;i<count;i++){
+    const wrap=el("div","slotWrap");
+    const game=el("div","slotGame");
+    game.style.width=w+"px";
+    ["a","b"].forEach((_,s)=>{
+      const row=el("div","slotRow");
+      row.dataset.r=r; row.dataset.i=i; row.dataset.s=s;
+      row.innerHTML=`<div class="slotSeed"></div><div class="slotName"></div><div class="slotScore"><input></div>`;
+      row.onclick=()=>pick(r,i,s);
+      game.appendChild(row);
+    });
+    wrap.appendChild(game);
+    col.appendChild(wrap);
+  }
+}
+
+function pick(r,i,s){
+  const teamName = getTeamAtSlot(r, i, s);
+  if (!teamName) return;
+  
+  if(r===1){
+    state.r1[i]=s;
+    state.r2[Math.floor(i/2)]=null;
+    state.r3[Math.floor(i/4)]=null;
+    state.r4=null;
+  }
+  else if(r===2){
+    state.r2[i]=s;
+    state.r3[Math.floor(i/2)]=null;
+    state.r4=null;
+  }
+  else if(r===3){
+    state.r3[i]=s;
+    state.r4=null;
+  }
+  else if(r===4){
+    state.r4=s;
+  }
+  render();
+}
+
+function getTeamAtSlot(r, i, s) {
+  if (r === 1) {
+    return games[i][s];
+  } else if (r === 2) {
+    return getWinner1(i * 2 + s);
+  } else if (r === 3) {
+    return getWinner2(i * 2 + s);
+  } else if (r === 4) {
+    return getWinner3(s);
+  }
+  return null;
+}
+
+function render(){
+  updateRound(2,4,(i,s)=>getWinner1(i*2+s),(i,s)=>getWinner1Seed(i*2+s));
+  updateRound(3,2,(i,s)=>getWinner2(i*2+s),(i,s)=>getWinner2Seed(i*2+s));
+  updateRound(4,1,(i,s)=>getWinner3(s),(i,s)=>getWinner3Seed(s));
+  highlight();
+  requestAnimationFrame(()=>{position();draw();});
+}
+
+function getWinner1(i){return state.r1[i]!=null?games[i][state.r1[i]]:null;}
+function getWinner1Seed(i){return state.r1[i]!=null?seeds[i][state.r1[i]]:null;}
+function getWinner2(i){
+  if(state.r2[i] === null) return null;
+  return getWinner1(i*2 + state.r2[i]);
+}
+function getWinner2Seed(i){
+  if(state.r2[i] === null) return null;
+  return getWinner1Seed(i*2 + state.r2[i]);
+}
+function getWinner3(i){
+  if(state.r3[i] === null) return null;
+  return getWinner2(i*2 + state.r3[i]);
+}
+function getWinner3Seed(i){
+  if(state.r3[i] === null) return null;
+  return getWinner2Seed(i*2 + state.r3[i]);
+}
+
+function updateRound(r,count,getter,seedGetter){
+  const col=document.getElementById("r"+r);
+  [...col.querySelectorAll(".slotRow")].forEach(row=>{
+    const i=parseInt(row.dataset.i);
+    const s=parseInt(row.dataset.s);
+    const team=getter(i,s);
+    const seed=seedGetter(i,s);
+    row.querySelector(".slotName").textContent=team||"";
+    row.querySelector(".slotSeed").textContent=seed?`#${seed}`:"";
+  });
+}
+
+function highlight(){
+  document.querySelectorAll(".row,.slotRow").forEach(n=>n.classList.remove("win"));
+  
+  state.r1.forEach((winner, i) => {
+    if (winner !== null) {
+      const rows = document.querySelectorAll(`.row[data-i="${i}"]`);
+      rows[winner].classList.add("win");
+    }
+  });
+  
+  state.r2.forEach((winner, i) => {
+    if (winner !== null) {
+      const rows = document.querySelectorAll(`.slotRow[data-r="2"][data-i="${i}"]`);
+      rows[winner].classList.add("win");
+    }
+  });
+  
+  state.r3.forEach((winner, i) => {
+    if (winner !== null) {
+      const rows = document.querySelectorAll(`.slotRow[data-r="3"][data-i="${i}"]`);
+      rows[winner].classList.add("win");
+    }
+  });
+  
+  if (state.r4 !== null) {
+    const rows = document.querySelectorAll(`.slotRow[data-r="4"]`);
+    rows[state.r4].classList.add("win");
+  }
+}
+
+function position(){
+  const grid=document.getElementById("grid");
+  const rect=grid.getBoundingClientRect();
+  const r1=[...document.querySelectorAll(".game")];
+  const r2=[...document.querySelectorAll("#r2 .slotWrap")];
+  const r3=[...document.querySelectorAll("#r3 .slotWrap")];
+  const r4=[...document.querySelectorAll("#r4 .slotWrap")];
+
+  const mid=(a,b)=>((a.getBoundingClientRect().top+a.getBoundingClientRect().bottom+b.getBoundingClientRect().top+b.getBoundingClientRect().bottom)/4)-rect.top;
+
+  for(let i=0;i<4;i++){
+    const h=r2[i].firstChild.offsetHeight;
+    r2[i].style.top=(mid(r1[i*2],r1[i*2+1])-h/2)+"px";
+  }
+  for(let i=0;i<2;i++){
+    const a=r2[i*2].getBoundingClientRect(),b=r2[i*2+1].getBoundingClientRect();
+    const m=(a.top+a.bottom+b.top+b.bottom)/4-rect.top;
+    const h=r3[i].firstChild.offsetHeight;
+    r3[i].style.top=(m-h/2)+"px";
+  }
+  {
+    const a=r3[0].getBoundingClientRect(),b=r3[1].getBoundingClientRect();
+    const m=(a.top+a.bottom+b.top+b.bottom)/4-rect.top;
+    const h=r4[0].firstChild.offsetHeight;
+    r4[0].style.top=(m-h/2+90)+"px";
+  }
+}
+
+function draw(){
+  const grid=document.getElementById("grid");
+  const rect=grid.getBoundingClientRect();
+  const svg=document.getElementById("lines");
+  svg.innerHTML="";
+  svg.setAttribute("viewBox",`0 0 ${grid.clientWidth} ${grid.clientHeight}`);
+
+  const r1=[...document.querySelectorAll(".game")];
+  const r2=[...document.querySelectorAll("#r2 .slotGame")];
+  const r3=[...document.querySelectorAll("#r3 .slotGame")];
+  const r4=document.querySelector("#r4 .slotGame");
+
+  const midY=n=>(n.getBoundingClientRect().top+n.getBoundingClientRect().bottom)/2-rect.top;
+  const rightX=n=>n.getBoundingClientRect().right-rect.left;
+  const leftX=n=>n.getBoundingClientRect().left-rect.left;
+
+  function elbow(x1,y1,x2,y2){
+    const mid=(x1+x2)/2;
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",`M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`);
+    p.setAttribute("stroke","black");
+    p.setAttribute("stroke-width","4");
+    p.setAttribute("fill","none");
+    svg.appendChild(p);
+  }
+
+  for(let i=0;i<4;i++){
+    elbow(rightX(r1[i*2]),midY(r1[i*2]),leftX(r2[i]),midY(r2[i]));
+    elbow(rightX(r1[i*2+1]),midY(r1[i*2+1]),leftX(r2[i]),midY(r2[i]));
+  }
+  for(let i=0;i<2;i++){
+    elbow(rightX(r2[i*2]),midY(r2[i*2]),leftX(r3[i]),midY(r3[i]));
+    elbow(rightX(r2[i*2+1]),midY(r2[i*2+1]),leftX(r3[i]),midY(r3[i]));
+  }
+  elbow(rightX(r3[0]),midY(r3[0]),leftX(r4),midY(r4));
+  elbow(rightX(r3[1]),midY(r3[1]),leftX(r4),midY(r4));
+}
+
+function exportPNG() {
+  const bracket = document.getElementById('bracket');
+  const button = document.querySelector('.export-btn');
+  const originalText = button.textContent;
+  button.textContent = '⏳ Generating...';
+  button.disabled = true;
+  
+  html2canvas(bracket, {
+    backgroundColor: null,
+    scale: 2,
+    logging: false,
+    useCORS: true
+  }).then(canvas => {
+    const link = document.createElement('a');
+    const date = new Date().toISOString().split('T')[0];
+    link.download = `basketball-pickems-${date}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    button.textContent = originalText;
+    button.disabled = false;
+  }).catch(err => {
+    console.error('Export failed:', err);
+    alert('Failed to export PNG. Please try again.');
+    button.textContent = originalText;
+    button.disabled = false;
+  });
+}
+
+function resetBracket() {
+  if (confirm('Are you sure you want to reset all picks?')) {
+    // Clear all state
+    state.r1 = [null,null,null,null,null,null,null,null];
+    state.r2 = [null,null,null,null];
+    state.r3 = [null,null];
+    state.r4 = null;
+    
+    // Reset all score inputs to 0
+    var inputs = document.querySelectorAll('input');
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].value = '0';
+    }
+    
+    // Re-render to clear everything
+    render();
+  }
+}
+
+build();
+</script>
+</body>
+</html>
