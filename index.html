@@ -47,6 +47,8 @@ body {
   height:auto;
   margin:auto;
   position:relative;
+  background: url("bg.png");
+  background-repeat: repeat;
   padding-top:22px;
   padding-bottom:22px;
 }
@@ -513,28 +515,12 @@ function exportPNG() {
   button.textContent = 'Generating...';
   button.disabled = true;
   
-  // Create a wrapper with background for export
-  const wrapper = document.createElement('div');
-  wrapper.style.background = 'url("bg.png") center center';
-  wrapper.style.backgroundSize = 'cover';
-  wrapper.style.width = stage.offsetWidth + 'px';
-  wrapper.style.height = stage.offsetHeight + 'px';
-  wrapper.style.position = 'relative';
-  
-  const clone = stage.cloneNode(true);
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
-  wrapper.style.position = 'absolute';
-  wrapper.style.left = '-9999px';
-  
-  html2canvas(wrapper, {
+  html2canvas(stage, {
     backgroundColor: null,
     scale: 2,
     logging: false,
     useCORS: true
   }).then(canvas => {
-    document.body.removeChild(wrapper);
-    
     const link = document.createElement('a');
     const date = new Date().toISOString().split('T')[0];
     link.download = `basketball-pickems-${date}.png`;
